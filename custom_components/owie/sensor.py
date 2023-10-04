@@ -141,16 +141,16 @@ class OwieBatterySensor(Entity):
         """Return the state of the sensor."""
         return int(self.data.info['OVERRIDDEN_SOC'])
 
-    # @property
-    # def extra_state_attributes(self):
-    #     """Return the state attributes."""
-    #     attrs = {
-    #         ATTR_OVERRIDDEN_SOC: self.state,
-    #         #ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
-    #         #ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE']),
-    #         #ATTR_UPTIME: str(self.data.info['UPTIME'])
-    #     }
-    #     return attrs
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        attrs = {
+            ATTR_OVERRIDDEN_SOC: self.state,
+            # ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
+            ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE']),
+            ATTR_UPTIME: str(self.data.info['UPTIME'])
+        }
+        return attrs
 
     @property
     def state_class(self):
