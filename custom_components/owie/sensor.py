@@ -54,8 +54,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     data = OwieData(config.get(CONF_OWIE_IP))
 
     sensors = [
-        OwieBatterySensor(data, config.get(CONF_NAME)),
-        OwieChargingSensor(data, config.get(CONF_NAME))
+        OwieBatterySensor(hass, data, config.get(CONF_NAME)),
+        OwieChargingSensor(hass, data, config.get(CONF_NAME))
     ]
     async_add_entities(sensors, True)
 
@@ -126,8 +126,9 @@ class OwieBatterySensor(Entity):
     _attr_has_entity_name = True
     _attr_device_class = SensorDeviceClass.BATTERY
 
-    def __init__(self, data, name):
+    def __init__(self, hass, data, name):
         """Initialize the sensor."""
+        self.hass = hass
         self.data = data
         self._name = name
         self.async_update()
@@ -171,8 +172,9 @@ class OwieChargingSensor(BinarySensorEntity):
     """Implementation of the charging state sensor."""
     _attr_has_entity_name = True
 
-    def __init__(self, data, name):
+    def __init__(self, hass, data, name):
         """Initialize the sensor."""
+        self.hass = hass
         self.data = data
         self._name = name
         self.current_current = 1
