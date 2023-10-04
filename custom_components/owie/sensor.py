@@ -80,6 +80,34 @@ def charge_speed(amps):
     else:
         return 'Unknown Charger'
 
+
+def charge_icon(soc):
+    if soc >= 95:
+        return 'mdi:battery'
+    elif soc >= 90:
+        return 'mdi:battery-90'
+    elif soc >= 80:
+        return 'mdi:battery-80'
+    elif soc >= 70:
+        return 'mdi:battery-70'
+    elif soc >= 60:
+        return 'mdi:battery-60'
+    elif soc >= 50:
+        return 'mdi:battery-50'
+    elif soc >= 40:
+        return 'mdi:battery-40'
+    elif soc >= 30:
+        return 'mdi:battery-30'
+    elif soc >= 20:
+        return 'mdi:battery-20'
+    elif soc >= 10:
+        return 'mdi:battery-10'
+    elif soc >= 0:
+        return 'mdi:battery-outline'
+    else:
+        return 'mdi:battery-unknown'
+
+
 class OwieBatterySensor(Entity):
     """Implementation of the battery sensor."""
     _attr_has_entity_name = True
@@ -117,9 +145,9 @@ class OwieBatterySensor(Entity):
         return "measurement"
 
     @property
-    def icon(self):  #TODO implement icon according to charge level
-        """Icon to use in the frontend, if any."""
-        return ICON
+    def icon(self):
+        """Icon to use in the frontend"""
+        return charge_icon(self.state)
 
     async def async_update(self):
         """Get the latest data from owie and update the states."""
