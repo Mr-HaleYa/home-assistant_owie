@@ -1,7 +1,7 @@
 {
     "domain": "owie",
     "name": "Owie",
-    "documentation": "https://github.com/yourjelly",
+    "documentation": "https://github.com/yourjelly/home-assistant_owie",
     "dependencies": [],
     "codeowners": ["@yourjelly"],
     "version": "0.0.2",
