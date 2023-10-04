@@ -234,6 +234,6 @@ class OwieData(object):
             else:
                 self.info = sanitize_response(response.json())
                 # _LOGGER.debug("Owie Data got {}".format(self.info))
-        except OSError as e:
-            # If Owie is offline
-            _LOGGER.info("Unable to connect to Owie device: %s", str(e))
+        except OSError:
+            #If owie offline
+            _LOGGER.info("Unable to connect to Owie device.")
