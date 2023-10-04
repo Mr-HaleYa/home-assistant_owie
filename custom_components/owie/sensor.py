@@ -18,9 +18,9 @@ from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.restore_state import RestoreEntity
 
-
 _LOGGER = logging.getLogger(__name__)
 
+# Define attribute names
 ATTR_TOTAL_VOLTAGE = "Total Voltage"
 ATTR_CURRENT_AMPS = "Current Amps"
 ATTR_CHARGE_SPEED = "Charge Speed"
@@ -30,13 +30,13 @@ ATTR_UPTIME = "Uptime"
 #ATTR_CELL_VOLTAGE = "Cell Voltage"
 #ATTR_BATTERY_TEMP = "Battery Temp"
 
+# Configuration constants
 CONF_OWIE_IP = 'owie_local_ip'
 DEFAULT_NAME = 'Onewheel Battery Owie'
-
 SCAN_INTERVAL = timedelta(seconds=10)
 
 def _ip_val(value) -> str:
-    """Validate input is ipaddress."""
+    """Validate input is an IP address."""
     try:
         ipaddress.ip_address(value)
     except ValueError:
@@ -49,10 +49,11 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-    """Get the Owie sensor."""
+    """Set up the Owie sensor platform."""
 
     data = OwieData(config.get(CONF_OWIE_IP))
 
+    # Create and add Owie sensor entities
     sensors = [
         OwieBatterySensor(hass, data, config.get(CONF_NAME)),
         OwieChargingSensor(hass, data, config.get(CONF_NAME))
@@ -60,13 +61,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities(sensors, True)
 
 def sanitize_response(owie_json):
-    """Strip text from values before exporting"""
-    _san_properties = ['OVERRIDDEN_SOC','TOTAL_VOLTAGE','CURRENT_AMPS']
+    """Strip text from values before exporting."""
+    _san_properties = ['OVERRIDDEN_SOC', 'TOTAL_VOLTAGE', 'CURRENT_AMPS']
     for prop in _san_properties:
         owie_json[prop] = owie_json[prop].strip('%').strip('v').strip(' Amps')
     return owie_json
 
 def charge_speed(amps):
+    """Determine charge speed based on current amps."""
     if amps >= 0:
         return 'Not Charging'
     elif amps > -1:
@@ -81,6 +83,7 @@ def charge_speed(amps):
         return 'Unknown Charger'
 
 def charge_speed_icon(amps):
+    """Determine charge speed icon based on current amps."""
     if amps >= 0:
         return 'mdi:power-plug-off-outline'
     elif amps > -1:
@@ -95,6 +98,7 @@ def charge_speed_icon(amps):
         return 'mdi:flash-alert-outline'
 
 def charge_icon(soc):
+    """Determine battery charge icon based on SOC (State of Charge)."""
     if soc >= 95:
         return 'mdi:battery'
     elif soc >= 90:
@@ -119,7 +123,6 @@ def charge_icon(soc):
         return 'mdi:battery-outline'
     else:
         return 'mdi:battery-unknown'
-
 
 class OwieBatterySensor(Entity):
     """Implementation of the battery sensor."""
@@ -165,9 +168,8 @@ class OwieBatterySensor(Entity):
         return charge_icon(self.state)
 
     async def async_update(self):
-        """Get the latest data from owie and update the states."""
+        """Get the latest data from Owie and update the states."""
         await self.hass.async_add_executor_job(self.data.update)
-
 
 class OwieChargingSensor(BinarySensorEntity):
     """Implementation of the charging state sensor."""
@@ -207,17 +209,17 @@ class OwieChargingSensor(BinarySensorEntity):
         return charge_speed_icon(self.current_current)
 
     async def async_update(self):
-        """Get the latest data from owie and update the states."""
+        """Get the latest data from Owie and update the states."""
         await self.hass.async_add_executor_job(self.data.update)
-
 
 class OwieData(object):
     """The coordinator for handling the data retrieval."""
+
     def __init__(self, owie_ip):
         """Initialize the info object."""
         self._owie_address = f"http://{owie_ip}/autoupdate"
         self.info = {}
-        self.info.setdefault('OVERRIDDEN_SOC', '0') #TODO this is where to request past data from hass
+        self.info.setdefault('OVERRIDDEN_SOC', '0') # TODO: this is where to request past data from Home Assistant
         self.info.setdefault('TOTAL_VOLTAGE', '0')
         self.info.setdefault('CURRENT_AMPS', '0')
         self.info.setdefault('UPTIME', 'Offline')
@@ -226,12 +228,12 @@ class OwieData(object):
         try:
             response = requests.get(self._owie_address, headers=None, timeout=1)
             if response.status_code == requests.codes.bad:
-                # If owie online but sending errors
-                _LOGGER.error("updating owie status got {}:{}".format(
+                # If Owie is online but sending errors
+                _LOGGER.error("Updating Owie status got {}:{}".format(
                     response.status_code, response.content))
             else:
                 self.info = sanitize_response(response.json())
                 # _LOGGER.debug("Owie Data got {}".format(self.info))
         except OSError as e:
-            #If owie offline
+            # If Owie is offline
             _LOGGER.info("Unable to connect to Owie device: %s", str(e))
