@@ -184,7 +184,7 @@ class OwieChargingSensor(BinarySensorEntity):
 
     @property
     def device_class(self):
-        return "BinarySensorDeviceClass.BATTERY_CHARGING"
+        return "battery_charging"
 
     @property
     def is_on(self):
