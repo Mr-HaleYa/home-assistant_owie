@@ -32,7 +32,6 @@ ATTR_UPTIME = "Uptime"
 
 CONF_OWIE_IP = 'owie_local_ip'
 DEFAULT_NAME = 'Onewheel Battery Owie'
-ICON = 'mdi:battery'
 
 SCAN_INTERVAL = timedelta(seconds=10)
 
