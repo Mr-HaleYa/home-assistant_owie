@@ -135,6 +135,10 @@ class OwieBatterySensor(Entity):
         return self._name
 
     @property
+    def device_class(self):
+        return "battery"
+
+    @property
     def state(self):
         """Return the state of the sensor."""
         return int(self.data.info['OVERRIDDEN_SOC'])
