@@ -226,7 +226,7 @@ class OwieData(object):
     def update(self):
         #response = await self.hass.async_add_executor_job(requests.get(self._owie_address, headers=None, timeout=.1))
         try:
-            response = requests.get(self._owie_address, headers=None, timeout=.1)
+            response = requests.get(self._owie_address, headers=None, timeout=1)
             if response.status_code == requests.codes.bad:
                 # If owie online but sending errors
                 _LOGGER.error("updating owie status got {}:{}".format(
