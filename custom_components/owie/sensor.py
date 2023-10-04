@@ -1,6 +1,7 @@
 import logging
 import requests
 import ipaddress
+import asyncio
 from datetime import timedelta
 from enum import Enum
 import voluptuous as vol
@@ -131,7 +132,6 @@ class OwieBatterySensor(Entity):
         self.hass = hass
         self.data = data
         self._name = name
-        self.async_update()
 
     @property
     def name(self):
@@ -178,7 +178,6 @@ class OwieChargingSensor(BinarySensorEntity):
         self.data = data
         self._name = name
         self.current_current = 1
-        self.async_update()
 
     @property
     def name(self):
