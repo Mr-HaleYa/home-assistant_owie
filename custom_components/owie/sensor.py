@@ -56,7 +56,8 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     # Create and add Owie sensor entities
     sensors = [
         OwieBatterySensor(hass, data, config.get(CONF_NAME)),
-        OwieChargingSensor(hass, data, config.get(CONF_NAME))
+        OwieChargingSensor(hass, data, config.get(CONF_NAME)),
+        OwieConnectivitySensor(hass, data, config.get(CONF_NAME))
     ]
     async_add_entities(sensors, True)
 
@@ -151,6 +152,7 @@ class OwieBatterySensor(RestoreEntity):
             self._state = self._last_state
             self._last_state = None
         elif self._state != -1 and override_value == -1:
+            return self._state
         elif override_value != -1:
             self._state = int(self.data.info['OVERRIDDEN_SOC'])
         else:
@@ -163,8 +165,7 @@ class OwieBatterySensor(RestoreEntity):
         attrs = {
             ATTR_OVERRIDDEN_SOC: self._state,
             # ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
-            ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE']),
-            ATTR_UPTIME: str(self.data.info['UPTIME'])
+            ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE'])
         }
         return attrs
 
@@ -225,6 +226,50 @@ class OwieChargingSensor(BinarySensorEntity):
     def icon(self):
         """Icon to use in the frontend"""
         return charge_speed_icon(self.current_current)
+
+    async def async_update(self):
+        """Get the latest data from Owie and update the states."""
+        await self.hass.async_add_executor_job(self.data.update)
+
+class OwieConnectivitySensor(BinarySensorEntity):
+    """Implementation of the connectivity state sensor."""
+
+    def __init__(self, hass, data, name):
+        """Initialize the sensor."""
+        self.hass = hass
+        self.data = data
+        self._name = name
+        self._connectivity = False
+
+    @property
+    def name(self):
+        return f"{self._name}.ConnectivityStatus"
+
+    @property
+    def device_class(self):
+        return "connectivity"
+
+    @property
+    def is_on(self):
+        """Return the state of the sensor."""
+        self._connectivity = str(self.data.info['UPTIME'])
+        if self._connectivity != 'Offline':
+            return True
+        else:
+            return False
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return {ATTR_UPTIME: str(self.data.info['UPTIME'])}
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend"""
+        if self._connectivity != False:
+            return 'mdi:network-outline'
+        else:
+            return 'mdi:network-off-outline'
 
     async def async_update(self):
         """Get the latest data from Owie and update the states."""
