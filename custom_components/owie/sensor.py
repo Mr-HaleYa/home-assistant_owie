@@ -123,8 +123,6 @@ def charge_icon(soc):
 
 class OwieBatterySensor(Entity):
     """Implementation of the battery sensor."""
-    _attr_has_entity_name = True
-    _attr_device_class = SensorDeviceClass.BATTERY
 
     def __init__(self, hass, data, name):
         """Initialize the sensor."""
@@ -169,7 +167,6 @@ class OwieBatterySensor(Entity):
 
 class OwieChargingSensor(BinarySensorEntity):
     """Implementation of the charging state sensor."""
-    _attr_has_entity_name = True
 
     def __init__(self, hass, data, name):
         """Initialize the sensor."""
