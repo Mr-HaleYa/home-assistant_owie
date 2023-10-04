@@ -124,7 +124,7 @@ def charge_icon(soc):
     else:
         return 'mdi:battery-unknown'
 
-class OwieBatterySensor(Entity):
+class OwieBatterySensor(RestoreEntity):
     """Implementation of the battery sensor."""
 
     def __init__(self, hass, data, name):
@@ -132,6 +132,8 @@ class OwieBatterySensor(Entity):
         self.hass = hass
         self.data = data
         self._name = name
+        self._state = -1
+        self._last_state = None
 
     @property
     def name(self):
@@ -144,13 +146,22 @@ class OwieBatterySensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return int(self.data.info['OVERRIDDEN_SOC'])
+        override_value = int(self.data.info['OVERRIDDEN_SOC'])
+        if self._last_state is not None and self._state == -1:
+            self._state = self._last_state
+            self._last_state = None
+        elif self._state != -1 and override_value == -1:
+        elif override_value != -1:
+            self._state = int(self.data.info['OVERRIDDEN_SOC'])
+        else:
+            self._state = 0
+        return self._state
 
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
         attrs = {
-            ATTR_OVERRIDDEN_SOC: self.state,
+            ATTR_OVERRIDDEN_SOC: self._state,
             # ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
             ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE']),
             ATTR_UPTIME: str(self.data.info['UPTIME'])
@@ -165,7 +176,14 @@ class OwieBatterySensor(Entity):
     @property
     def icon(self):
         """Icon to use in the frontend"""
-        return charge_icon(self.state)
+        return charge_icon(self._state)
+
+    async def async_added_to_hass(self):
+        """Run when entity about to be added to Home Assistant."""
+        await super().async_added_to_hass()
+        last_state = await self.async_get_last_state()
+        if last_state is not None and last_state.state is not None:
+            self._last_state = int(last_state.state)
 
     async def async_update(self):
         """Get the latest data from Owie and update the states."""
@@ -219,7 +237,7 @@ class OwieData(object):
         """Initialize the info object."""
         self._owie_address = f"http://{owie_ip}/autoupdate"
         self.info = {}
-        self.info.setdefault('OVERRIDDEN_SOC', '0') # TODO: this is where to request past data from Home Assistant
+        self.info.setdefault('OVERRIDDEN_SOC', '-1')
         self.info.setdefault('TOTAL_VOLTAGE', '0')
         self.info.setdefault('CURRENT_AMPS', '0')
         self.info.setdefault('UPTIME', 'Offline')
