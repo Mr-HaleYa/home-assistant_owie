@@ -80,6 +80,19 @@ def charge_speed(amps):
     else:
         return 'Unknown Charger'
 
+def charge_speed_icon(amps):
+    if amps >= 0:
+        return 'mdi:power-plug-off-outline'
+    elif amps > -1:
+        return 'mdi:scale-balance'
+    elif amps > -2:
+        return 'mdi:speedometer-slow'
+    elif amps > -4:
+        return 'mdi:speedometer-medium'
+    elif amps > -6:
+        return 'mdi:speedometer'
+    else:
+        return 'mdi:flash-alert-outline'
 
 def charge_icon(soc):
     if soc >= 95:
@@ -186,6 +199,11 @@ class OwieChargingSensor(BinarySensorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         return {ATTR_CHARGE_SPEED: charge_speed(self.current_current)}
+
+    @property
+    def icon(self):
+        """Icon to use in the frontend"""
+        return charge_speed_icon(self.current_current)
 
     async def async_update(self):
         """Get the latest data from owie and update the states."""
