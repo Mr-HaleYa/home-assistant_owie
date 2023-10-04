@@ -74,7 +74,7 @@ def charge_speed(amps):
     elif amps > -2:
         return 'Pint Charger'
     elif amps > -4:
-        return 'XR / Pint Ultracharger'
+        return 'XR|Pint Ultracharger'
     elif amps > -6:
         return 'XR Hypercharger'
     else:
