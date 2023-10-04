@@ -222,7 +222,6 @@ class OwieData(object):
         self.info.setdefault('UPTIME', 'Offline')
 
     def update(self):
-        #response = await self.hass.async_add_executor_job(requests.get(self._owie_address, headers=None, timeout=.1))
         try:
             response = requests.get(self._owie_address, headers=None, timeout=1)
             if response.status_code == requests.codes.bad:
