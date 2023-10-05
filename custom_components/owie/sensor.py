@@ -300,6 +300,7 @@ class OwieData(object):
 
     def __init__(self, owie_ip):
         """Initialize the info object."""
+        self._owie_ip = owie_ip
         self._owie_address = f"http://{owie_ip}/autoupdate"
         self.info = {}
         self.info.setdefault('OVERRIDDEN_SOC', '-1')
@@ -318,4 +319,4 @@ class OwieData(object):
                 # _LOGGER.debug("Owie Data got {}".format(self.info))
         except OSError:
             #If owie offline
-            _LOGGER.info("Unable to connect to Owie device.")
+            _LOGGER.info("Unable to connect to Owie device: {}".format(self._owie_ip))
