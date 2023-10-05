@@ -165,15 +165,15 @@ class OwieBatterySensor(RestoreEntity):
     def state(self):
         """Return the state of the sensor."""
         override_value = int(self.data.info['OVERRIDDEN_SOC'])
-        if self._last_state is not None and self._state == -1:
+        if self._last_state is not None and self._state == -1: # Restore state using last state
             self._state = self._last_state
             self._last_state = None
-        elif self._state != -1 and override_value == -1:
+        elif self._state != -1 and override_value == -1: # Keep using last state while Owie is not connected
             return self._state
-        elif override_value != -1:
-            self._state = int(self.data.info['OVERRIDDEN_SOC'])
+        elif override_value != -1: # Use data from Owie while connected
+            self._state = override_value
         else:
-            self._state = 0
+            self._state = 0 # Used if a new entity with no history and hasn't connected to Owie
         return self._state
 
     @property
