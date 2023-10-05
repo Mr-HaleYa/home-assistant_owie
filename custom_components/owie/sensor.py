@@ -34,6 +34,7 @@ ATTR_UPTIME = "Uptime"
 CONF_OWIE_IP = 'owie_local_ip'
 DEFAULT_NAME = 'Onewheel Battery Owie'
 SCAN_INTERVAL = timedelta(seconds=10)
+CONF_MAX_MISSED_PACKETS = 'max_missed_packets'
 
 def _ip_val(value) -> str:
     """Validate input is an IP address."""
@@ -45,7 +46,8 @@ def _ip_val(value) -> str:
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_OWIE_IP): _ip_val,
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string
+    vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
+    vol.Optional(CONF_MAX_MISSED_PACKETS, default=3): vol.Coerce(int)
 })
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -57,7 +59,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     sensors = [
         OwieBatterySensor(hass, data, config.get(CONF_NAME)),
         OwieChargingSensor(hass, data, config.get(CONF_NAME)),
-        OwieConnectivitySensor(hass, data, config.get(CONF_NAME))
+        OwieConnectivitySensor(hass, data, config.get(CONF_NAME), config.get(CONF_MAX_MISSED_PACKETS))
     ]
     async_add_entities(sensors, True)
 
@@ -234,12 +236,15 @@ class OwieChargingSensor(BinarySensorEntity):
 class OwieConnectivitySensor(BinarySensorEntity):
     """Implementation of the connectivity state sensor."""
 
-    def __init__(self, hass, data, name):
+    def __init__(self, hass, data, name, mpm):
         """Initialize the sensor."""
         self.hass = hass
         self.data = data
         self._name = name
         self._connectivity = False
+        self._max_missed_packets = mpm
+        self._missed_packets = 0
+        _LOGGER.debug("_max_missed_packets: {}".format(self._max_missed_packets))
 
     @property
     def name(self):
