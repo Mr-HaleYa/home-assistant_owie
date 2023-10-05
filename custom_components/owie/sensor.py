@@ -257,6 +257,7 @@ class OwieConnectivitySensor(BinarySensorEntity):
         self.data = data
         self._name = name
         self._new_uptime = 'Offline'
+        self._old_uptime = 'Offline'
         self._max_missed_packets = mpm
         self._missed_packets = 0
         _LOGGER.debug("_max_missed_packets: {}".format(self._max_missed_packets))
@@ -272,10 +273,27 @@ class OwieConnectivitySensor(BinarySensorEntity):
     @property
     def is_on(self):
         """Return the state of the sensor."""
-        self._connectivity = str(self.data.info['UPTIME'])
-        if self._connectivity != 'Offline':
+        self._new_uptime = str(self.data.info['UPTIME'])
+        if self._new_uptime != 'Offline' and self._new_uptime == self._old_uptime: # Owie gets disconnected and the time stalls
+            _LOGGER.info("ConnectivityStatus: Owie Disconnected")
+            _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            if self._missed_packets < self._max_missed_packets:
+                self._missed_packets += 1
+                _LOGGER.debug("Time Stale: Missed Packet {}".format(self._missed_packets))
+                return True
+            else:
+                return False
+        elif self._new_uptime != 'Offline' and self._new_uptime != self._old_uptime:    # Owie connected and getting new values
+            _LOGGER.info("ConnectivityStatus: Owie Connected")
+            _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            self._missed_packets = 0
+            self._old_uptime = self._new_uptime
             return True
-        else:
+        else: # Owie never connected or hass rebooted
+            _LOGGER.info("ConnectivityStatus: Owie Never Connected")
+            self._missed_packets = 0
             return False
 
     @property
