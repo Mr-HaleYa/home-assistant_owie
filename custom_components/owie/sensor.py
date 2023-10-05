@@ -33,9 +33,12 @@ ATTR_UPTIME = "Uptime"
 # Configuration constants
 CONF_OWIE_IP = 'owie_local_ip'
 CONF_MAX_MISSED_PACKETS = 'max_missed_packets'
+CONF_SCAN_INTERVAL = 'scan_owie_interval'
 
 # Defaults
 DEFAULT_NAME = 'Onewheel Battery Owie'
+DEFAULT_SCAN_INTERVAL = 10
+MIN_SCAN_INTERVAL = 5
 DEFAULT_MAX_MISSED_PACKETS = 3
 SCAN_INTERVAL = timedelta(seconds=10)
 
@@ -54,10 +57,16 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
         cv.string,
     vol.Optional(CONF_MAX_MISSED_PACKETS, default=DEFAULT_MAX_MISSED_PACKETS):
         vol.Coerce(int),
+    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL):
+        vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL)),
 })
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Owie sensor platform."""
+
+    # Set a custom SCAN_INTERVAL
+    SCAN_INTERVAL = timedelta(seconds=config.get(CONF_SCAN_INTERVAL))
+    # _LOGGER.debug("SCAN_INTERVAL: {}".format(SCAN_INTERVAL))
 
     data = OwieData(config.get(CONF_OWIE_IP))
 
