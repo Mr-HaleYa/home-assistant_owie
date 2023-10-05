@@ -297,8 +297,7 @@ class OwieData(object):
             response = requests.get(self._owie_address, headers=None, timeout=1)
             if response.status_code == requests.codes.bad:
                 # If Owie is online but sending errors
-                _LOGGER.error("Updating Owie status got {}:{}".format(
-                    response.status_code, response.content))
+                _LOGGER.error("Updating Owie status got {}:{}".format(response.status_code, response.content))
             else:
                 self.info = sanitize_response(response.json())
                 # _LOGGER.debug("Owie Data got {}".format(self.info))
