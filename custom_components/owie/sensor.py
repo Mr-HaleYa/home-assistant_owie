@@ -256,7 +256,7 @@ class OwieConnectivitySensor(BinarySensorEntity):
         self.hass = hass
         self.data = data
         self._name = name
-        self._connectivity = False
+        self._new_uptime = 'Offline'
         self._max_missed_packets = mpm
         self._missed_packets = 0
         _LOGGER.debug("_max_missed_packets: {}".format(self._max_missed_packets))
@@ -286,10 +286,10 @@ class OwieConnectivitySensor(BinarySensorEntity):
     @property
     def icon(self):
         """Icon to use in the frontend"""
-        if self._connectivity != False:
-            return 'mdi:network-outline'
-        else:
+        if str(self.data.info['UPTIME']) == 'Offline':
             return 'mdi:network-off-outline'
+        else:
+            return 'mdi:network-outline'
 
     async def async_update(self):
         """Get the latest data from Owie and update the states."""
