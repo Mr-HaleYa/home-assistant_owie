@@ -67,9 +67,14 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     """Set up the Owie sensor platform."""
 
+    # Print configurable Variables
+    _LOGGER.info("CONF_OWIE_IP: {}".format(config.get(CONF_OWIE_IP)))
+    _LOGGER.info("CONF_NAME: {}".format(config.get(CONF_NAME)))
+    _LOGGER.info("CONF_SCAN_INTERVAL: {}".format(config.get(CONF_SCAN_INTERVAL)))
+    _LOGGER.info("CONF_MAX_MISSED_PACKETS: {}".format(config.get(CONF_MAX_MISSED_PACKETS)))
+
     # Set a custom SCAN_INTERVAL
     SCAN_INTERVAL = timedelta(seconds=config.get(CONF_SCAN_INTERVAL))
-    # _LOGGER.debug("SCAN_INTERVAL: {}".format(SCAN_INTERVAL))
 
     data = OwieData(config.get(CONF_OWIE_IP))
 
