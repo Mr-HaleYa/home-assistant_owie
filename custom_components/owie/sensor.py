@@ -83,7 +83,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 def sanitize_response(owie_json):
     """Strip text from values before exporting."""
-    _san_properties = ['TOTAL_VOLTAGE', 'CURRENT_AMPS', 'BMS_SOC', 'OVERRIDDEN_SOC'. 'USED_CHARGE_MAH', 'REGENERATED_CHARGE_MAH']
+    _san_properties = ['TOTAL_VOLTAGE', 'CURRENT_AMPS', 'BMS_SOC', 'OVERRIDDEN_SOC', 'USED_CHARGE_MAH', 'REGENERATED_CHARGE_MAH']
     for prop in _san_properties:
         owie_json[prop] = owie_json[prop].strip('v').strip(' Amps').strip('%').strip('%').strip(' mAh').strip(' mAh')
 
