@@ -237,7 +237,11 @@ class OwieChargingSensor(BinarySensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {ATTR_CHARGE_SPEED: charge_speed(self.current_current)}
+        attrs = {
+            ATTR_CHARGE_SPEED: charge_speed(self.current_current),
+            ATTR_CURRENT_AMPS: float(self.data.info['CURRENT_AMPS'])
+        }
+        return attrs
 
     @property
     def icon(self):
