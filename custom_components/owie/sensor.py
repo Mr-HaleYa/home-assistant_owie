@@ -363,7 +363,10 @@ class OwieConnectivitySensor(BinarySensorEntity):
     @property
     def extra_state_attributes(self):
         """Return the state attributes."""
-        return {ATTR_UPTIME: str(self.data.info['UPTIME'])}
+        attrs = {
+            ATTR_UPTIME: str(self.data.info['UPTIME'])
+        }
+        return attrs
 
     @property
     def icon(self):
