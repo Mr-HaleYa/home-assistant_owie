@@ -98,10 +98,16 @@ def sanitize_response(owie_json):
             cols = row.find_all('td')
             cell_voltage_row = [col.text.strip() for col in cols if col.text.strip()]
             if cell_voltage_row:
-                cell_voltage_values.append(cell_voltage_row)
+                cell_voltage_values.extend(cell_voltage_row)
                 break
 
-        owie_json['CELL_VOLTAGE_TABLE'] = cell_voltage_values
+        # Create keys starting from 'Cell 1' to 'Cell 15'
+        cell_voltage_keys = [f'Cell {i}' for i in range(1, 16)]
+
+        # Map values to keys
+        cell_voltage_mapping = dict(zip(cell_voltage_keys, cell_voltage_values))
+
+        owie_json['CELL_VOLTAGE_TABLE'] = cell_voltage_mapping
 
     # Parse TEMPERATURE_TABLE
     temperature_table = owie_json.get('TEMPERATURE_TABLE')
@@ -114,10 +120,16 @@ def sanitize_response(owie_json):
             cols = row.find_all('td')
             temperature_row = [col.text.strip() for col in cols if col.text.strip()]
             if temperature_row:
-                temperature_values.append(temperature_row)
+                temperature_values.extend(temperature_row)
                 break
 
-        owie_json['TEMPERATURE_TABLE'] = temperature_values
+        # Create keys starting from 'Temp 1' to 'Temp 5'
+        temperature_keys = [f'Temp {i}' for i in range(1, 6)]
+
+        # Map values to keys
+        temperature_mapping = dict(zip(temperature_keys, temperature_values))
+
+        owie_json['TEMPERATURE_TABLE'] = temperature_mapping
 
     return owie_json
 
