@@ -24,14 +24,14 @@ _LOGGER = logging.getLogger(__name__)
 # Define attribute names
 ATTR_TOTAL_VOLTAGE = "Total Voltage"
 ATTR_CURRENT_AMPS = "Current Amps"
-ATTR_CHARGE_SPEED = "Charge Speed"
+ATTR_BMS_SOC = "BMS Level"
 ATTR_OVERRIDDEN_SOC = "Battery Level"
+ATTR_USED_CHARGE = "Used Charge"
+ATTR_REGENERATED_CHARGE = "Regenerated Charge"
 ATTR_UPTIME = "Uptime"
 ATTR_CELL_VOLTAGE_TABLE = "Cell Voltage Table"
 ATTR_TEMPERATURE_TABLE = "Temperature Table"
-#ATTR_REGENERATED_CHARGE = "Regenerated Charge"
-#ATTR_CELL_VOLTAGE = "Cell Voltage"
-#ATTR_BATTERY_TEMP = "Battery Temp"
+ATTR_CHARGE_SPEED = "Charge Speed"
 
 # Configuration constants
 CONF_OWIE_IP = 'owie_local_ip'
@@ -231,7 +231,9 @@ class OwieBatterySensor(RestoreEntity):
         """Return the state attributes."""
         attrs = {
             ATTR_OVERRIDDEN_SOC: self._state,
-            # ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
+            ATTR_BMS_SOC: float(self.data.info["BMS_SOC"]),
+            ATTR_REGENERATED_CHARGE: float(self.data.info['REGENERATED_CHARGE_MAH']),
+            ATTR_USED_CHARGE: float(self.data.info["USED_CHARGE_MAH"]),
             ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE'])
         }
         
@@ -383,9 +385,12 @@ class OwieData(object):
         self._owie_ip = owie_ip
         self._owie_address = f"http://{owie_ip}/autoupdate"
         self.info = {}
-        self.info.setdefault('OVERRIDDEN_SOC', '-1')
         self.info.setdefault('TOTAL_VOLTAGE', '0')
         self.info.setdefault('CURRENT_AMPS', '0')
+        self.info.setdefault('BMS_SOC', '0')
+        self.info.setdefault('OVERRIDDEN_SOC', '-1')
+        self.info.setdefault('USED_CHARGE_MAH', '0')
+        self.info.setdefault('REGENERATED_CHARGE_MAH', '0')
         self.info.setdefault('UPTIME', 'Offline')
 
     def update(self):
