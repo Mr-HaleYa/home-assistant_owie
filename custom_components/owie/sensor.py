@@ -108,6 +108,7 @@ def sanitize_response(owie_json):
         cell_voltage_mapping = dict(zip(cell_voltage_keys, cell_voltage_values))
 
         owie_json['CELL_VOLTAGE_TABLE'] = cell_voltage_mapping
+        # _LOGGER.debug("Owie Data CELL_VOLTAGE_TABLE: {}".format(cell_voltage_mapping))
 
     # Parse TEMPERATURE_TABLE
     temperature_table = owie_json.get('TEMPERATURE_TABLE')
@@ -130,6 +131,7 @@ def sanitize_response(owie_json):
         temperature_mapping = dict(zip(temperature_keys, temperature_values))
 
         owie_json['TEMPERATURE_TABLE'] = temperature_mapping
+        # _LOGGER.debug("Owie Data TEMPERATURE_TABLE: {}".format(temperature_mapping))
 
     return owie_json
 
@@ -321,7 +323,6 @@ class OwieConnectivitySensor(BinarySensorEntity):
         self._old_uptime = 'Offline'
         self._max_missed_packets = mpm
         self._missed_packets = 0
-        _LOGGER.debug("_max_missed_packets: {}".format(self._max_missed_packets))
 
     @property
     def name(self):
@@ -336,9 +337,9 @@ class OwieConnectivitySensor(BinarySensorEntity):
         """Return the state of the sensor."""
         self._new_uptime = str(self.data.info['UPTIME'])
         if self._new_uptime != 'Offline' and self._new_uptime == self._old_uptime: # Owie gets disconnected and the time stalls
-            _LOGGER.info("ConnectivityStatus: Owie Disconnected")
-            _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
-            _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            # _LOGGER.info("ConnectivityStatus: Owie Disconnected")
+            # _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
             if self._missed_packets < self._max_missed_packets:
                 self._missed_packets += 1
                 _LOGGER.debug("Time Stale: Missed Packet {}".format(self._missed_packets))
@@ -346,14 +347,14 @@ class OwieConnectivitySensor(BinarySensorEntity):
             else:
                 return False
         elif self._new_uptime != 'Offline' and self._new_uptime != self._old_uptime:    # Owie connected and getting new values
-            _LOGGER.info("ConnectivityStatus: Owie Connected")
-            _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
-            _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            # _LOGGER.info("ConnectivityStatus: Owie Connected")
+            # _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
             self._missed_packets = 0
             self._old_uptime = self._new_uptime
             return True
         else: # Owie never connected or hass rebooted
-            _LOGGER.info("ConnectivityStatus: Owie Never Connected")
+            # _LOGGER.info("ConnectivityStatus: Owie Never Connected")
             self._missed_packets = 0
             return False
 
