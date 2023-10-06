@@ -76,7 +76,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     # Create and add Owie sensor entities
     sensors = [
         OwieBatterySensor(hass, data, config.get(CONF_NAME)),
-        OwieChargingSensor(hass, data, config.get(CONF_NAME)),
+        OwieChargingSensor(hass, data, config.get(CONF_NAME), config.get(CONF_MAX_MISSED_PACKETS)),
         OwieConnectivitySensor(hass, data, config.get(CONF_NAME), config.get(CONF_MAX_MISSED_PACKETS))
     ]
     async_add_entities(sensors, True)
@@ -271,12 +271,17 @@ class OwieBatterySensor(RestoreEntity):
 class OwieChargingSensor(BinarySensorEntity):
     """Implementation of the charging state sensor."""
 
-    def __init__(self, hass, data, name):
+    def __init__(self, hass, data, name, mpm):
         """Initialize the sensor."""
         self.hass = hass
         self.data = data
         self._name = name
         self.current_current = 1
+        self._new_uptime = 'Offline'
+        self._old_uptime = 'Offline'
+        self._max_missed_packets = mpm
+        self._missed_packets = 0
+        self._connected = False
 
     @property
     def name(self):
@@ -289,11 +294,40 @@ class OwieChargingSensor(BinarySensorEntity):
     @property
     def is_on(self):
         """Return the state of the sensor."""
-        self.current_current = float(self.data.info['CURRENT_AMPS'])
-        if self.current_current >= 0:
-            return False
+
+        # Determine if Owie is connected or not
+        self._new_uptime = str(self.data.info['UPTIME'])
+        if self._new_uptime != 'Offline' and self._new_uptime == self._old_uptime: # Owie gets disconnected and the time stalls
+            # _LOGGER.info("ConnectivityStatus: Owie Disconnected")
+            # _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            if self._missed_packets < self._max_missed_packets:
+                self._missed_packets += 1
+                # _LOGGER.info("Time Stale: Missed Packet {}".format(self._missed_packets))
+                self._connected = True
+            else:
+                self._connected = False
+        elif self._new_uptime != 'Offline' and self._new_uptime != self._old_uptime: # Owie connected and getting new values
+            # _LOGGER.info("ConnectivityStatus: Owie Connected")
+            # _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
+            # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
+            self._missed_packets = 0
+            self._old_uptime = self._new_uptime
+            self._connected = True
+        else: # Owie never connected or hass rebooted
+            # _LOGGER.info("ConnectivityStatus: Owie Never Connected")
+            self._missed_packets = 0
+            self._connected = False
+
+        if self._connected == True:
+            self.current_current = float(self.data.info['CURRENT_AMPS'])
+            if self.current_current >= 0:
+                return False
+            else:
+                return True
         else:
-            return True
+            self.current_current = 0
+            return False
 
     @property
     def extra_state_attributes(self):
