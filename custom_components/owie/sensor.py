@@ -17,6 +17,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import CONF_NAME
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.restore_state import RestoreEntity
+from bs4 import BeautifulSoup
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +86,39 @@ def sanitize_response(owie_json):
     _san_properties = ['OVERRIDDEN_SOC', 'TOTAL_VOLTAGE', 'CURRENT_AMPS']
     for prop in _san_properties:
         owie_json[prop] = owie_json[prop].strip('%').strip('v').strip(' Amps')
+
+    # Parse CELL_VOLTAGE_TABLE
+    cell_voltage_table = owie_json.get('CELL_VOLTAGE_TABLE')
+    if cell_voltage_table:
+        soup = BeautifulSoup(cell_voltage_table, 'html.parser')
+        rows = soup.find_all('tr')
+        cell_voltage_values = []
+
+        for row in rows:
+            cols = row.find_all('td')
+            cell_voltage_row = [col.text.strip() for col in cols if col.text.strip()]
+            if cell_voltage_row:
+                cell_voltage_values.append(cell_voltage_row)
+                break
+
+        owie_json['CELL_VOLTAGE_TABLE'] = cell_voltage_values
+
+    # Parse TEMPERATURE_TABLE
+    temperature_table = owie_json.get('TEMPERATURE_TABLE')
+    if temperature_table:
+        soup = BeautifulSoup(temperature_table, 'html.parser')
+        rows = soup.find_all('tr')
+        temperature_values = []
+
+        for row in rows:
+            cols = row.find_all('td')
+            temperature_row = [col.text.strip() for col in cols if col.text.strip()]
+            if temperature_row:
+                temperature_values.append(temperature_row)
+                break
+
+        owie_json['TEMPERATURE_TABLE'] = temperature_values
+
     return owie_json
 
 def charge_speed(amps):
