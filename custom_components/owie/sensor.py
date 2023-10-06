@@ -392,6 +392,8 @@ class OwieData(object):
         self.info.setdefault('USED_CHARGE_MAH', '0')
         self.info.setdefault('REGENERATED_CHARGE_MAH', '0')
         self.info.setdefault('UPTIME', 'Offline')
+        self.info.setdefault('CELL_VOLTAGE_TABLE', {})
+        self.info.setdefault('TEMPERATURE_TABLE', {})
 
     def update(self):
         try:
