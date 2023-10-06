@@ -344,11 +344,11 @@ class OwieConnectivitySensor(BinarySensorEntity):
             # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
             if self._missed_packets < self._max_missed_packets:
                 self._missed_packets += 1
-                _LOGGER.debug("Time Stale: Missed Packet {}".format(self._missed_packets))
+                # _LOGGER.info("Time Stale: Missed Packet {}".format(self._missed_packets))
                 return True
             else:
                 return False
-        elif self._new_uptime != 'Offline' and self._new_uptime != self._old_uptime:    # Owie connected and getting new values
+        elif self._new_uptime != 'Offline' and self._new_uptime != self._old_uptime: # Owie connected and getting new values
             # _LOGGER.info("ConnectivityStatus: Owie Connected")
             # _LOGGER.debug("_old_uptime: {}".format(self._old_uptime))
             # _LOGGER.debug("_new_uptime: {}".format(self._new_uptime))
