@@ -220,6 +220,15 @@ class OwieBatterySensor(RestoreEntity):
             # ATTR_CHARGE_SPEED: charge_speed(float(self.data.info['CURRENT_AMPS'])),
             ATTR_TOTAL_VOLTAGE: float(self.data.info['TOTAL_VOLTAGE'])
         }
+        
+        # Check if CELL_VOLTAGE_TABLE exists in data.info
+        if 'CELL_VOLTAGE_TABLE' in self.data.info:
+            attrs[ATTR_CELL_VOLTAGE_TABLE] = self.data.info['CELL_VOLTAGE_TABLE']
+
+        # Check if TEMPERATURE_TABLE exists in data.info
+        if 'TEMPERATURE_TABLE' in self.data.info:
+            attrs[ATTR_TEMPERATURE_TABLE] = self.data.info['TEMPERATURE_TABLE']
+        
         return attrs
 
     @property
