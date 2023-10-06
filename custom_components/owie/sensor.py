@@ -1,10 +1,10 @@
-import logging
-import requests
-import ipaddress
-import asyncio
-from datetime import timedelta
-from enum import Enum
-import voluptuous as vol
+import logging  # Import the logging module for logging messages
+import requests  # Import the requests library for making HTTP requests
+import ipaddress  # Import the ipaddress module for IP address validation
+import asyncio  # Import asyncio for asynchronous operations
+from datetime import timedelta  # Import timedelta for time calculations
+from enum import Enum  # Import Enum for creating enumerated constants
+import voluptuous as vol  # Import voluptuous for configuration validation
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     RestoreSensor,
@@ -54,13 +54,13 @@ def _ip_val(value) -> str:
     return value
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
-    vol.Required(CONF_OWIE_IP):
+    vol.Required(CONF_OWIE_IP): # Required: IP address of the Owie device
         _ip_val,
-    vol.Optional(CONF_NAME, default=DEFAULT_NAME):
+    vol.Optional(CONF_NAME, default=DEFAULT_NAME): # Optional: Custom name for the sensor
         cv.string,
-    vol.Optional(CONF_MAX_MISSED_PACKETS, default=DEFAULT_MAX_MISSED_PACKETS):
+    vol.Optional(CONF_MAX_MISSED_PACKETS, default=DEFAULT_MAX_MISSED_PACKETS): # Optional: Max missed packets
         vol.Coerce(int),
-    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL):
+    vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): # Optional: Scan interval
         vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL)),
 })
 
