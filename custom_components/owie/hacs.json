@@ -1,5 +1,14 @@
 {
     "name": "Owie-Battery",
+    "description": "Connect your Onewheel Owie board to Home Assistant",
     "render_readme": true,
-    "domains": ["sensor"]
+    "repository": "https://github.com/yourjelly/home-assistant_owie",
+    "category": "Integration",
+    "country": "All",
+    "homeassistant": "2023.9.0",
+    "version": "0.0.3",
+    "config_flow": false,
+    "domain": "owie",
+    "documentation": "https://github.com/yourjelly/home-assistant_owie",
+    "issues": "https://github.com/yourjelly/home-assistant_owie/issues",
 }
